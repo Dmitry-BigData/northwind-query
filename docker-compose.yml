@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  db_for_queries:
+    container_name: my_database_container
+    user: postgres
+    image: postgres
+    restart: always
+    ports:
+      - "5432"
+    env_file:
+      - ./app1/.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+  python_script:
+    build: ./app1
+    restart: always
+    depends_on:
+      db_for_queries:
+        condition: service_healthy
+    env_file:
+      - ./app1/.env
+    volumes:
+      - ./app1:/app
+
+
